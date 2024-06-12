@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using Vjezba.DAL;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,11 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
-builder.Services.AddDbContext<ClientManagerDbContext>(options =>
-	options.UseSqlServer(
-		builder.Configuration.GetConnectionString("ClientManagerDbContext"),
-			opt => opt.MigrationsAssembly("Vjezba.DAL")));
-
+builder.Services.AddDbContext<FootballContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("FootballContext"),
+        new MySqlServerVersion(new Version(8, 0, 21)), // Adjust the MySQL version as needed
+        opt => opt.MigrationsAssembly("Vjezba.DAL")));
 
 var app = builder.Build();
 
@@ -43,16 +44,6 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     SupportedCultures = supportedCultures,
     SupportedUICultures = supportedCultures
 });
-
-app.MapControllerRoute(
-    name: "kontakt-forma",
-    pattern: "kontakt-forma",
-    defaults: new { controller = "Home", action = "Contact" });
-
-app.MapControllerRoute(
-    name: "o-aplikaciji",
-    pattern: "o-aplikaciji/{lang:alpha:length(2)}",
-    defaults: new { controller = "Home", action = "Privacy" });
 
 app.MapControllerRoute(
     name: "default",

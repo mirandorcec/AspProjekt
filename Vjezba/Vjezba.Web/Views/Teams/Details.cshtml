@@ -1,0 +1,66 @@
+﻿@model Vjezba.Model.Team
+
+@{
+    ViewData["Title"] = "Team Details";
+}
+
+<h1>Team Details</h1>
+
+<div>
+    <h4>Team</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Stadium)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Stadium)
+        </dd>
+        <dt class="col-sm-2">
+            Manager
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Manager.FirstName) @Html.DisplayFor(model => model.Manager.LastName)
+        </dd>
+        <dt class="col-sm-2">
+            League
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.League.Name)
+        </dd>
+    </dl>
+
+    <h4>Players</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Players.First().FirstName)</th>
+                <th>@Html.DisplayNameFor(model => model.Players.First().LastName)</th>
+                <th>@Html.DisplayNameFor(model => model.Players.First().Age)</th>
+                <th>@Html.DisplayNameFor(model => model.Players.First().Position)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var player in Model.Players)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => player.FirstName)</td>
+                    <td>@Html.DisplayFor(modelItem => player.LastName)</td>
+                    <td>@Html.DisplayFor(modelItem => player.Age)</td>
+                    <td>@Html.DisplayFor(modelItem => player.Position)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.TeamId" class="btn btn-primary">Edit</a> |
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
