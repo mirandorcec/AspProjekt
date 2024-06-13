@@ -19,10 +19,10 @@
                 @Html.DisplayNameFor(model => model.Stadium)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Manager.FirstName)
+                @Html.DisplayNameFor(model => model.League.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.League.Name)
+                Manager
             </th>
             <th></th>
         </tr>
@@ -31,22 +31,25 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>
+                <td class="p-3">
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
-                <td>
+                <td class="p-3">
                     @Html.DisplayFor(modelItem => item.Stadium)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Manager.FirstName)
-                </td>
-                <td>
+                <td class="p-3">
                     @Html.DisplayFor(modelItem => item.League.Name)
                 </td>
+                <td class="p-3">
+                    @if (item.Manager != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.Manager.FirstName) @Html.DisplayFor(modelItem => item.Manager.LastName)
+                    }
+                </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.TeamId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.TeamId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.TeamId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.TeamId" class="btn btn-primary">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.TeamId" class="btn btn-secondary">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.TeamId" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
         }

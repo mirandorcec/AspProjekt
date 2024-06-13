@@ -1,0 +1,42 @@
+﻿@model IEnumerable<Vjezba.Model.League>
+
+@{
+    ViewData["Title"] = "Leagues";
+}
+
+<h1>Leagues</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Country)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="p-3">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td class="p-3">
+                    @Html.DisplayFor(modelItem => item.Country)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.LeagueId" class="btn btn-primary">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.LeagueId" class="btn btn-secondary">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.LeagueId" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

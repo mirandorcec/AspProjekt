@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vjezba.DAL;
 using Vjezba.Model;
+using System.Linq;
 
 namespace Vjezba.Web.Controllers
 {
@@ -18,7 +19,7 @@ namespace Vjezba.Web.Controllers
         // GET: Teams
         public IActionResult Index()
         {
-            var teams = db.Teams.Include(t => t.Manager).Include(t => t.League);
+            var teams = db.Teams.Include(t => t.League).Include(t => t.Manager);
             return View(teams.ToList());
         }
 
@@ -43,7 +44,6 @@ namespace Vjezba.Web.Controllers
         // GET: Teams/Create
         public IActionResult Create()
         {
-            ViewBag.ManagerId = new SelectList(db.Managers, "ManagerId", "FirstName");
             ViewBag.LeagueId = new SelectList(db.Leagues, "LeagueId", "Name");
             return View();
         }
@@ -51,15 +51,13 @@ namespace Vjezba.Web.Controllers
         // POST: Teams/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Name,Stadium,ManagerId,LeagueId")] Team team)
+        public IActionResult Create([Bind("Name,Stadium,LeagueId")] Team team)
         {
 
             db.Teams.Add(team);
             db.SaveChanges();
-
-            ViewBag.ManagerId = new SelectList(db.Managers, "ManagerId", "FirstName", team.ManagerId);
-            ViewBag.LeagueId = new SelectList(db.Leagues, "LeagueId", "Name", team.LeagueId);
             return RedirectToAction(nameof(Index));
+
         }
 
         // GET: Teams/Edit/5
@@ -69,12 +67,11 @@ namespace Vjezba.Web.Controllers
             {
                 return BadRequest();
             }
-            var team = db.Teams.Find(id);
+            var team = db.Teams.Include(t => t.Manager).FirstOrDefault(t => t.TeamId == id);
             if (team == null)
             {
                 return NotFound();
             }
-            ViewBag.ManagerId = new SelectList(db.Managers, "ManagerId", "FirstName", team.ManagerId);
             ViewBag.LeagueId = new SelectList(db.Leagues, "LeagueId", "Name", team.LeagueId);
             return View(team);
         }
@@ -82,34 +79,68 @@ namespace Vjezba.Web.Controllers
         // POST: Teams/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("TeamId,Name,Stadium,ManagerId,LeagueId")] Team team)
+        public IActionResult Edit(int id, [Bind("TeamId,Name,Stadium,LeagueId,ManagerId")] Team updatedTeam)
         {
-            if (id != team.TeamId)
+            if (id != updatedTeam.TeamId)
             {
                 return BadRequest();
             }
 
-       
-                try
+
+            try
+            {
+                var existingTeam = db.Teams.Include(t => t.Manager).FirstOrDefault(t => t.TeamId == updatedTeam.TeamId);
+
+                if (existingTeam == null)
                 {
-                    db.Entry(team).State = EntityState.Modified;
-                    db.SaveChanges();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+
+                existingTeam.Name = updatedTeam.Name;
+                existingTeam.Stadium = updatedTeam.Stadium;
+                existingTeam.LeagueId = updatedTeam.LeagueId;
+
+                // Update manager relationships
+                if (existingTeam.ManagerId != updatedTeam.ManagerId)
                 {
-                    if (!TeamExists(team.TeamId))
+                    if (existingTeam.ManagerId != null)
                     {
-                        return NotFound();
+                        var oldManager = db.Managers.FirstOrDefault(m => m.ManagerId == existingTeam.ManagerId);
+                        if (oldManager != null)
+                        {
+                            oldManager.TeamId = null;
+                        }
                     }
-                    else
+
+                    if (updatedTeam.ManagerId != null)
                     {
-                        throw;
+                        var newManager = db.Managers.FirstOrDefault(m => m.ManagerId == updatedTeam.ManagerId);
+                        if (newManager != null)
+                        {
+                            newManager.TeamId = updatedTeam.TeamId;
+                        }
                     }
+
+                    existingTeam.ManagerId = updatedTeam.ManagerId;
                 }
-                
-            ViewBag.ManagerId = new SelectList(db.Managers, "ManagerId", "FirstName", team.ManagerId);
-            ViewBag.LeagueId = new SelectList(db.Leagues, "LeagueId", "Name", team.LeagueId);
+
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TeamExists(updatedTeam.TeamId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
             return RedirectToAction(nameof(Index));
+
+
+
         }
 
         private bool TeamExists(int id)
@@ -124,7 +155,7 @@ namespace Vjezba.Web.Controllers
             {
                 return BadRequest();
             }
-            var team = db.Teams.Include(t => t.Manager).Include(t => t.League).FirstOrDefault(t => t.TeamId == id);
+            var team = db.Teams.Include(t => t.League).Include(t => t.Manager).FirstOrDefault(t => t.TeamId == id);
             if (team == null)
             {
                 return NotFound();
@@ -132,32 +163,29 @@ namespace Vjezba.Web.Controllers
             return View(team);
         }
 
-        // POST: Teams/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var team = db.Teams.Include(t => t.Players).FirstOrDefault(t => t.TeamId == id);
+            var team = db.Teams.Include(t => t.Players).Include(t => t.Manager).FirstOrDefault(t => t.TeamId == id);
             if (team == null)
             {
                 return NotFound();
             }
 
-            if (team.Players.Any())
-            {
-                ModelState.AddModelError("", "Cannot delete this team because it has players associated with it.");
-                return View(team);
-            }
-
             try
             {
+                if (team.Manager != null)
+                {
+                    team.Manager.TeamId = null;
+                }
                 db.Teams.Remove(team);
                 db.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
             {
-                ModelState.AddModelError("", "Unable to delete team. ");
+                ModelState.AddModelError("", "Unable to delete team. Please try again.");
                 return View(team);
             }
         }

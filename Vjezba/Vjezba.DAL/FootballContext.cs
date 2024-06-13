@@ -25,6 +25,18 @@ namespace Vjezba.DAL
                .HasConversion(
                    v => v.ToString(),
                    v => (Position)Enum.Parse(typeof(Position), v));
+
+            modelBuilder.Entity<Team>()
+                .HasOne(t => t.Manager)
+                .WithOne(m => m.Team)
+                .HasForeignKey<Team>(t => t.ManagerId)
+                .OnDelete(DeleteBehavior.SetNull);  
+
+            modelBuilder.Entity<Manager>()
+                .HasOne(m => m.Team)
+                .WithOne(t => t.Manager)
+                .HasForeignKey<Manager>(m => m.TeamId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
 	}
