@@ -49,4 +49,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.MapControllerRoute(
+    name: "CustomMatch",
+    pattern: "CustomMatch/versus/{team1Id:int}/{team2Id:int}",
+    defaults: new { controller = "Match", action = "Index" });
+
 app.Run();

@@ -1,0 +1,80 @@
+﻿@model Vjezba.Web.Models.MatchViewModel
+
+@{
+    ViewData["Title"] = "Match";
+    var random = new Random();
+}
+
+<div class="row">
+    <div class="col-md-5">
+        <h2>@Model.Team1.Name</h2>
+        <ul>
+            @foreach (var player in Model.Team1.Players)
+            {
+                var stats = new Vjezba.Web.Models.PlayerStatsViewModel
+                {
+                    PlayerName = player.FirstName + " " + player.LastName,
+                    Position = player.Position,
+                    DEF = random.Next(50, 100),
+                    SKILL = random.Next(50, 100),
+                    SHOOTING = random.Next(50, 100),
+                    PASSING = random.Next(50, 100),
+                    SCORING = random.Next(50, 100)
+                };
+                Model.Team1PlayerStats.Add(stats);
+                <li>
+                    @stats.PlayerName (@stats.Position) -
+                    DEF: @stats.DEF, SKILL: @stats.SKILL,
+                    SHOOTING: @stats.SHOOTING, PASSING: @stats.PASSING,
+                    SCORING: @stats.SCORING
+                </li>
+            }
+        </ul>
+        <h3>Total Stats</h3>
+        <ul>
+            <li>DEF: @Model.Team1PlayerStats.Sum(s => s.DEF)</li>
+            <li>SKILL: @Model.Team1PlayerStats.Sum(s => s.SKILL)</li>
+            <li>SHOOTING: @Model.Team1PlayerStats.Sum(s => s.SHOOTING)</li>
+            <li>PASSING: @Model.Team1PlayerStats.Sum(s => s.PASSING)</li>
+            <li>SCORING: @Model.Team1PlayerStats.Sum(s => s.SCORING)</li>
+        </ul>
+    </div>
+
+    <div class="col-md-2 text-center">
+        <h1>VS</h1>
+    </div>
+
+    <div class="col-md-5">
+        <h2>@Model.Team2.Name</h2>
+        <ul>
+            @foreach (var player in Model.Team2.Players)
+            {
+                var stats = new Vjezba.Web.Models.PlayerStatsViewModel
+                {
+                    PlayerName = player.FirstName + " " + player.LastName,
+                    Position = player.Position,
+                    DEF = random.Next(50, 100),
+                    SKILL = random.Next(50, 100),
+                    SHOOTING = random.Next(50, 100),
+                    PASSING = random.Next(50, 100),
+                    SCORING = random.Next(50, 100)
+                };
+                Model.Team2PlayerStats.Add(stats);
+                <li>
+                    @stats.PlayerName (@stats.Position) -
+                    DEF: @stats.DEF, SKILL: @stats.SKILL,
+                    SHOOTING: @stats.SHOOTING, PASSING: @stats.PASSING,
+                    SCORING: @stats.SCORING
+                </li>
+            }
+        </ul>
+        <h3>Total Stats</h3>
+        <ul>
+            <li>DEF: @Model.Team2PlayerStats.Sum(s => s.DEF)</li>
+            <li>SKILL: @Model.Team2PlayerStats.Sum(s => s.SKILL)</li>
+            <li>SHOOTING: @Model.Team2PlayerStats.Sum(s => s.SHOOTING)</li>
+            <li>PASSING: @Model.Team2PlayerStats.Sum(s => s.PASSING)</li>
+            <li>SCORING: @Model.Team2PlayerStats.Sum(s => s.SCORING)</li>
+        </ul>
+    </div>
+</div>

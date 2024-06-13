@@ -4,30 +4,25 @@
     ViewData["Title"] = "Players";
 }
 
-<h1>Players</h1>
+<h2>Players</h2>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
-</p>
+<div>
+    <input type="text" id="searchInput" placeholder="Search players by name..." />
+    <button type="button" id="searchButton" class="btn-primary">Search</button>
+</div>
+
+<div id="searchResults">
+    <!-- Placeholder za rezultate searcha -->
+</div>
+
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Age)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Position)
-            </th>
-            <th>
-                Team
-            </th>
-            <th></th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Age</th>
+            <th>Position</th>
+            <th>Team</th>
         </tr>
     </thead>
     <tbody>
@@ -58,3 +53,35 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#searchButton').click(function () {
+                var searchQuery = $('#searchInput').val();
+                $.ajax({
+                    url: '@Url.Action("Search", "Players")',
+                    type: 'GET',
+                    data: { query: searchQuery },
+                    success: function (data) {
+                        $('#searchResults').html('');
+                        if (data.length > 0) {
+                            var resultHtml = '<table class="table"><thead><tr><th>First Name</th><th>Last Name</th><th>Age</th><th>Team</th></tr></thead><tbody>';
+                            $.each(data, function (index, player) {
+                                resultHtml += '<tr><td>' + player.firstName + '</td><td>' + player.lastName + '</td><td>' + player.age + '</td><td>' + player.teamName + '</td></tr>';
+                            });
+                            resultHtml += '</tbody></table>';
+                            $('#searchResults').html(resultHtml);
+                        } else {
+                            $('#searchResults').html('<p>No players found.</p>');
+                        }
+                    },
+                    error: function () {
+                        $('#searchResults').html('<p>An error occurred while searching. Please try again.</p>');
+                    }
+                });
+            });
+        });
+    </script>
+}

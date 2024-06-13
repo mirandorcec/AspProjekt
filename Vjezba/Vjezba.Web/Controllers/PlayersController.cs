@@ -145,6 +145,44 @@ namespace Vjezba.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public IActionResult DeleteAjax(int id)
+        {
+            var player = db.Players.Find(id);
+            if (player == null)
+            {
+                return Json(new { success = false, message = "Player not found." });
+            }
+
+            db.Players.Remove(player);
+            db.SaveChanges();
+            return Json(new { success = true, message = "Player deleted successfully." });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Search(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return Json(new List<object>());
+            }
+
+            var players = await db.Players
+                .Include(p => p.Team)
+                .Where(p => p.FirstName.Contains(query) || p.LastName.Contains(query))
+                .Select(p => new
+                {
+                    p.FirstName,
+                    p.LastName,
+                    p.Age,
+                    p.Position,
+                    TeamName = p.Team != null ? p.Team.Name : "No Team"
+                })
+                .ToListAsync();
+
+            return Json(players);
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

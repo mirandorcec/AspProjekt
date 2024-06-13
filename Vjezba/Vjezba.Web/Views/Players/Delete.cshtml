@@ -43,9 +43,40 @@
         </dd>
     </dl>
 
-    <form asp-action="Delete" method="post">
+    <form asp-action="Delete" method="post" id="normal-delete-form">
         <input type="hidden" asp-for="PlayerId" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>
+    <button id="ajax-delete-button" class="btn btn-danger">AJAX Delete</button>
 </div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#ajax-delete-button').click(function () {
+                var playerId = $('input[name="PlayerId"]').val();
+
+                if (confirm('Are you sure you want to delete this player using AJAX?')) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteAjax", "Players")',
+                        type: 'POST',
+                        data: { id: playerId },
+                        success: function (response) {
+                            if (response.success) {
+                                alert('Player deleted successfully.');
+                                window.location.href = '@Url.Action("Index")';
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function () {
+                            alert('An error occurred while deleting the player.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
