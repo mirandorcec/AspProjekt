@@ -6,14 +6,15 @@ using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
+
+builder.Services.AddControllers();
 
 builder.Services.AddDbContext<FootballContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("FootballContext"),
-        new MySqlServerVersion(new Version(8, 0, 21)), // Adjust the MySQL version as needed
+        new MySqlServerVersion(new Version(8, 0, 21)), 
         opt => opt.MigrationsAssembly("Vjezba.DAL")));
 
 var app = builder.Build();
@@ -53,5 +54,7 @@ app.MapControllerRoute(
     name: "CustomMatch",
     pattern: "CustomMatch/versus/{team1Id:int}/{team2Id:int}",
     defaults: new { controller = "Match", action = "Index" });
+
+app.MapControllers();
 
 app.Run();

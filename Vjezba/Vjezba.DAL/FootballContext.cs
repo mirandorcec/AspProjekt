@@ -8,6 +8,8 @@ namespace Vjezba.DAL
         public DbSet<Team> Teams { get; set; }
         public DbSet<League> Leagues { get; set; }
         public DbSet<Manager> Managers { get; set; }
+        public DbSet<Sponsor> Sponsors { get; set; }
+
 
         protected FootballContext() { }
 
